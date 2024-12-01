@@ -9,6 +9,42 @@ static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdat
 }
 
 void load_aoc_input(int day) {
+    char output_path[64];
+    struct stat st;
+
+    if (stat("../data", &st) == -1) {
+        mkdir("../data", 0700);
+    }
+    
+    snprintf(output_path, sizeof(output_path), "./data/%d.txt", day);
+
+    if (stat(output_path, &st) == 0) {
+        // File already exists, no need to download
+        FILE *output_file = fopen(output_path, "r");
+        if (!output_file) {
+            perror("Failed to open output file");
+            exit(EXIT_FAILURE);
+        }
+
+        fseek(output_file, 0, SEEK_END);
+        long filesize = ftell(output_file);
+        rewind(output_file);
+
+        aoc_input = malloc(filesize + 1);
+        if (!aoc_input) {
+            perror("Failed to allocate memory for input data");
+            fclose(output_file);
+            exit(EXIT_FAILURE);
+        }
+
+        fread(aoc_input, 1, filesize, output_file);
+        aoc_input[filesize] = '\0';
+
+        fclose(output_file);
+        return;
+    }
+    
+
     // Read the session cookie from sesson.txt
     FILE *session_file = fopen("./session.txt", "r");
     if (!session_file) {
@@ -35,14 +71,6 @@ void load_aoc_input(int day) {
     snprintf(url, sizeof(url), "https://adventofcode.com/%d/day/%d/input", YEAR, day);
 
     // Open the output file
-    char output_path[64];
-    struct stat st;
-
-    if (stat("../data", &st) == -1) {
-        mkdir("../data", 0700);
-    }
-    
-    snprintf(output_path, sizeof(output_path), "./data/%d.txt", day);
 
     FILE *output_file = fopen(output_path, "w");
     if (!output_file) {
