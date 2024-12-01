@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <libgen.h>
 #include <dlfcn.h> // For dynamic linking
 #include <string.h>
 #include "lib.h"
@@ -22,9 +23,19 @@ int main(int argc, char** argv) {
     // Load input for the day
     load_aoc_input(day);
 
+    // get binary path from argv[0]
+    char *binary_path = realpath(argv[0], NULL);
+    if (!binary_path) {
+        perror("Failed to get binary path");
+        return EXIT_FAILURE;
+    }
+
+    // get the directory of the binary
+    char *binary_dir = dirname(binary_path);
+
     // Construct the shared library path
     char lib_path[256];
-    snprintf(lib_path, sizeof(lib_path), "./solutions/%d.so", day);
+    snprintf(lib_path, sizeof(lib_path), "%s/solutions/%d.so", binary_dir, day);
 
     // Load the shared library for the solution
     void* handle = dlopen(lib_path, RTLD_NOW);
@@ -46,8 +57,8 @@ int main(int argc, char** argv) {
     }
 
     // Run part1 and part2
-    printf("Part 1: %s\n", part1(aoc_input));
-    printf("Part 2: %s\n", part2(aoc_input));
+    printf("Part 1: %d\n", part1(aoc_input));
+    printf("Part 2: %d\n", part2(aoc_input));
 
     // Clean up
     dlclose(handle);

@@ -10,7 +10,7 @@ static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdat
 
 void load_aoc_input(int day) {
     // Read the session cookie from sesson.txt
-    FILE *session_file = fopen("../session.txt", "r");
+    FILE *session_file = fopen("./session.txt", "r");
     if (!session_file) {
         perror("Failed to open session.txt");
         exit(EXIT_FAILURE);
@@ -42,7 +42,7 @@ void load_aoc_input(int day) {
         mkdir("../data", 0700);
     }
     
-    snprintf(output_path, sizeof(output_path), "../data/%d.txt", day);
+    snprintf(output_path, sizeof(output_path), "./data/%d.txt", day);
 
     FILE *output_file = fopen(output_path, "w");
     if (!output_file) {
